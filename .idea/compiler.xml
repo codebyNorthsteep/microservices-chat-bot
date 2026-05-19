@@ -10,14 +10,26 @@
         <module name="auth-service" />
         <module name="bff" />
         <module name="service3" />
+      </profile>
+      <profile name="Annotation profile for message-service" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.46/lombok-1.18.46.jar" />
+        </processorPath>
         <module name="message-service" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="demo" target="25" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="auth-service" options="-parameters" />
       <module name="bff" options="-parameters" />
+      <module name="demo" options="-parameters" />
       <module name="message-service" options="-parameters" />
       <module name="service3" options="-parameters" />
     </option>

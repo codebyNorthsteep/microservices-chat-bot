@@ -6,10 +6,10 @@ import org.springframework.grpc.client.ImportGrpcClients;
 
 @SpringBootApplication
 @ImportGrpcClients(basePackages="org.example.grpc")// Gå igenom de autogenererade filerna i target och skapa beans av stubbarna
-public class Service1Application {
+public class MessageServiceApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(Service1Application.class, args);
+        SpringApplication.run(MessageServiceApplication.class, args);
     }
 
 }
