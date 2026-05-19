@@ -7,20 +7,18 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="service1" />
+        <module name="auth-service" />
         <module name="bff" />
         <module name="service3" />
+        <module name="message-service" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="auth-service" target="25" />
-    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="auth-service" options="-parameters" />
       <module name="bff" options="-parameters" />
-      <module name="service1" options="-parameters" />
+      <module name="message-service" options="-parameters" />
       <module name="service3" options="-parameters" />
     </option>
   </component>
