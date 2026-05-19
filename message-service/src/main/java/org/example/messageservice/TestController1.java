@@ -1,4 +1,4 @@
-package org.example.service1;
+package org.example.messageservice;
 
 import org.example.grpc.GreetingServiceGrpc;
 import org.example.grpc.HelloRequest;
