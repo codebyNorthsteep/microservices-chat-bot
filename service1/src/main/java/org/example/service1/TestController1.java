@@ -1,5 +1,8 @@
 package org.example.service1;
 
+import org.example.grpc.GreetingServiceGrpc;
+import org.example.grpc.HelloRequest;
+import org.example.grpc.HelloResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
