@@ -1,4 +1,4 @@
-package org.example.service3;
+package org.example.userservice;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
