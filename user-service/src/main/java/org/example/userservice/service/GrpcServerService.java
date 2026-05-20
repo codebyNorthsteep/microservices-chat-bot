@@ -1,4 +1,4 @@
-package org.example.userservice;
+package org.example.userservice.service;
 
 import io.grpc.stub.StreamObserver;
 import org.example.grpc.GreetingServiceGrpc;
