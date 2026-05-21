@@ -1,5 +1,6 @@
 package org.example.messageservice.controller;
 
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.example.messageservice.dto.CreateMessage;
 import org.example.messageservice.dto.ReceiveMessage;
@@ -22,10 +23,10 @@ public class MessageController {
     }
 
     @PostMapping("/messages")
-    public ResponseEntity<ReceiveMessage> createMessage(@RequestBody CreateMessage messageRequest) {
+    public ResponseEntity<ReceiveMessage> createMessage(@Valid @RequestBody CreateMessage messageRequest) {
         ReceiveMessage receiveMessage = messageService.saveMessage(messageRequest);
         log.info("Message created with id: {}", receiveMessage.id());
-        return ResponseEntity.created(URI.create("/api/messages/" + receiveMessage.id())).body(receiveMessage);
+        return ResponseEntity.created(URI.create("/api/messages/" + receiveMessage.username())).body(receiveMessage);
     }
 
     @GetMapping("/messages/{username}")
