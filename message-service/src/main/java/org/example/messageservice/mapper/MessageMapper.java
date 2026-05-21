@@ -5,6 +5,9 @@ import org.example.messageservice.dto.ReceiveMessage;
 import org.example.messageservice.model.Message;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Component
 public class MessageMapper {
     public Message toEntity(CreateMessage request) {
@@ -15,12 +18,18 @@ public class MessageMapper {
 
     }
 
-    public ReceiveMessage toUserResponse(Message entity){
+    public ReceiveMessage toReceiveMessage(Message entity){
         return new ReceiveMessage(
                 entity.getId(),
                 entity.getUsername(),
                 entity.getContent(),
                 entity.getCreatedAt());
 
+    }
+
+    public List<ReceiveMessage> toReceiveMessageList(List<Message> messages) {
+        return messages.stream()
+                .map(this::toReceiveMessage)
+                .collect(Collectors.toList());
     }
 }
