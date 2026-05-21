@@ -20,11 +20,11 @@ public class User {
     @Column(name = "user_name", unique = true, nullable = false)
     @NotBlank
     private String username;
-    @Column(name = "first_name")
+    @Column(name = "first_name", nullable = false)
     @NotBlank(message = "First name cannot be blank")
     @Size(min = 2, max = 50, message = "First name must be between 2 and 50 characters")
     private String firstName;
-    @Column(name = "last_name")
+    @Column(name = "last_name", nullable = false)
     @NotBlank(message = "Last name cannot be blank")
     @Size(min = 2, max = 50, message = "Last name must be between 2 and 50 characters")
     private String lastName;

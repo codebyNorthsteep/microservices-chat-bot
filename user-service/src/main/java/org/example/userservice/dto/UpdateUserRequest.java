@@ -10,7 +10,7 @@ public record UpdateUserRequest(@NotBlank(message = "Username cannot be blank")
                                 @Size(min = 2, max = 50, message = "First name must be between 2 and 50 characters")
                                 String firstName,
                                 @NotBlank(message = "Last name cannot be blank")
-                                @Size(min = 2, max = 50, message = "First name must be between 2 and 50 characters")
+                                @Size(min = 2, max = 50, message = "Last name must be between 2 and 50 characters")
                                 String lastName,
                                 @Email(message = "Email should be valid")
                                 @NotBlank(message = "Email cannot be blank")

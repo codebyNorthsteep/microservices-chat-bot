@@ -34,8 +34,8 @@ public class UserService {
             User saved = userRepository.save(user);
             return userMapper.toUserResponse(saved);
 
-        } catch (DataIntegrityViolationException _) {
-            throw new RuntimeException("Username already taken");
+        } catch (DataIntegrityViolationException ex) {
+            throw new RuntimeException("Username or email already taken" + ex);
         }
     }
 
@@ -48,10 +48,15 @@ public class UserService {
     public UserResponse updateUser(Long id, UpdateUserRequest updatedUser) {
         User existingUser = findUserById(id);
         userMapper.updateEntity(updatedUser, existingUser);
-        User saved = userRepository.save(existingUser);
-        return userMapper.toUserResponse(saved);
+        try {
+            User saved = userRepository.save(existingUser);
+            return userMapper.toUserResponse(saved);
+        } catch (DataIntegrityViolationException ex) {
+            throw new RuntimeException("Username or email already taken" + ex);
+        }
     }
 
+    //todo: skapa en PATCH endpoint för att uppdatera lösenord vid tillfälle
     public User updateUserPassword(Long id, String updatedPassword) {
         User existingUser = findUserById(id);
 

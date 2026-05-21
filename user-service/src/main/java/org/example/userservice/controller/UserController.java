@@ -25,7 +25,7 @@ public class UserController {
     ResponseEntity<UserResponse> createUser(@Valid @RequestBody CreateUserRequest user) {
         UserResponse created = userService.createUser(user);
         log.info("User created with id: {}", created.id());
-        return ResponseEntity.created(URI.create("/users/" + created.id())).body(created);
+        return ResponseEntity.created(URI.create("/api/users/" + created.id())).body(created);
     }
 
     @GetMapping("/users/{id}")
