@@ -32,7 +32,7 @@ public class MessageController {
     @GetMapping("/messages/{username}")
     public ResponseEntity<List<ReceiveMessage>> getMessagesByUsername(@PathVariable String username) {
         List<ReceiveMessage> messages = messageService.getAllMessages(username);
-        log.info("Messages retrieved for username: {}", username);
+        log.info("Messages retrieved a user");
         return ResponseEntity.ok(messages);
     }
 }
