@@ -16,18 +16,23 @@ public class MessageService {
 
 private final MessageRepository messageRepository;
 private final MessageMapper messageMapper;
+private final GrpcClientService grpcClientService;
 
-    public MessageService(MessageRepository messageRepository, MessageMapper messageMapper) {
+    public MessageService(MessageRepository messageRepository, MessageMapper messageMapper, GrpcClientService grpcClientService) {
         this.messageRepository = messageRepository;
         this.messageMapper = messageMapper;
+        this.grpcClientService = grpcClientService;
     }
 
     public ReceiveMessage saveMessage(CreateMessage messageRequest) {
         if (messageRequest == null) {
             throw new IllegalArgumentException("Message request cannot be null");
         }
+        //Get username from UserService via gRPC to ensure the user exists before saving the message
+        grpcClientService.getUser(messageRequest.username());
         Message message = messageMapper.toEntity(messageRequest);
         Message savedMessage = messageRepository.save(message);
+
         log.info("Message created with id: {}", savedMessage.getId());
         return messageMapper.toReceiveMessage(savedMessage);
     }

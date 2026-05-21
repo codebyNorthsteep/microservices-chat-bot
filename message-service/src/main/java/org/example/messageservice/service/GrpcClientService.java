@@ -1,15 +1,13 @@
 package org.example.messageservice.service;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Service;
 
 import org.example.grpc.UserServiceGrpc;
 import org.example.grpc.UserRequest;
 import org.example.grpc.UserResponse;
 
 
-@RestController
+@Service
 public class GrpcClientService {
     final UserServiceGrpc.UserServiceBlockingStub stub;
 
@@ -17,13 +15,12 @@ public class GrpcClientService {
         this.stub = stub;
     }
 
-    @GetMapping("/api/test")
-    public String getUser(@RequestParam(defaultValue = "Guest") String name) {
+    public String getUser(String username) {
         UserRequest request = UserRequest.newBuilder()
-                .setUsername(name)
+                .setUsername(username)
                 .build();
         UserResponse response = stub.getUser(request);
 
-        return "Hello, " + response.getUsername() + "!";
+        return response.getUsername();
     }
 }
