@@ -23,7 +23,8 @@ public class Message {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    public Message() {
+    @PrePersist
+    protected void onCreate() {
         this.createdAt = LocalDateTime.now();
     }
 }
