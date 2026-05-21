@@ -35,7 +35,7 @@ public class UserService {
             return userMapper.toUserResponse(saved);
 
         } catch (DataIntegrityViolationException ex) {
-            throw new RuntimeException("Username or email already taken" + ex);
+            throw new RuntimeException("Username or email already taken", ex);
         }
     }
 
@@ -52,7 +52,7 @@ public class UserService {
             User saved = userRepository.save(existingUser);
             return userMapper.toUserResponse(saved);
         } catch (DataIntegrityViolationException ex) {
-            throw new RuntimeException("Username or email already taken" + ex);
+            throw new RuntimeException("Username or email already taken", ex);
         }
     }
 
