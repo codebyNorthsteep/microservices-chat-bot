@@ -4,7 +4,7 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.example.userservice.dto.CreateUserRequest;
 import org.example.userservice.dto.UpdateUserRequest;
-import org.example.userservice.dto.UserResponse;
+import org.example.userservice.dto.UserDto;
 import org.example.userservice.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,21 +25,21 @@ public class UserController {
     }
 
     @PostMapping("/users")
-    ResponseEntity<UserResponse> createUser(@Valid @RequestBody CreateUserRequest user) {
-        UserResponse created = userService.createUser(user);
+    ResponseEntity<UserDto> createUser(@Valid @RequestBody CreateUserRequest user) {
+        UserDto created = userService.createUser(user);
         log.info("User created with id: {}", created.id());
         return ResponseEntity.created(URI.create("/api/users/" + created.id())).body(created);
     }
 
     @GetMapping("/users/{id}")
-    ResponseEntity<UserResponse> getUser(@PathVariable Long id) {
+    ResponseEntity<UserDto> getUser(@PathVariable Long id) {
         log.info("Fetching user with id: {}", id);
         return ResponseEntity.ok(userService.getUser(id));
     }
 
     @PutMapping("/users/{id}")
-    ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest user) {
-        UserResponse updated = userService.updateUser(id, user);
+    ResponseEntity<UserDto> updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest user) {
+        UserDto updated = userService.updateUser(id, user);
         log.info("Updating user with id: {}", id);
         return ResponseEntity.ok(updated);
     }

@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 import jakarta.persistence.EntityNotFoundException;
 import org.example.userservice.dto.CreateUserRequest;
 import org.example.userservice.dto.UpdateUserRequest;
-import org.example.userservice.dto.UserResponse;
+import org.example.userservice.dto.UserDto;
 import org.example.userservice.mapper.UserMapper;
 import org.example.userservice.model.User;
 import org.example.userservice.repository.UserRepository;
@@ -26,7 +26,7 @@ public class UserService {
         this.userMapper = userMapper;
     }
 
-    public UserResponse createUser(CreateUserRequest request) {
+    public UserDto createUser(CreateUserRequest request) {
         // Hash the password before saving
         User user = userMapper.toEntity(request);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -39,13 +39,19 @@ public class UserService {
         }
     }
 
-    public UserResponse getUser(Long id) {
+    public UserDto getUser(Long id) {
         User user = findUserById(id);
 
         return userMapper.toUserResponse(user);
     }
 
-    public UserResponse updateUser(Long id, UpdateUserRequest updatedUser) {
+    public UserDto getUserByUsername(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        return userMapper.toUserResponse(user);
+    }
+
+    public UserDto updateUser(Long id, UpdateUserRequest updatedUser) {
         User existingUser = findUserById(id);
         userMapper.updateEntity(updatedUser, existingUser);
         try {
