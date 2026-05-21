@@ -1,4 +1,4 @@
-package org.example.messageservice;
+package org.example.messageservice.controller;
 
 import org.example.grpc.GreetingServiceGrpc;
 import org.example.grpc.HelloRequest;
@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class MessageController {
+public class GrpcClientService {
     final GreetingServiceGrpc.GreetingServiceBlockingStub stub;
 
-    public MessageController(GreetingServiceGrpc.GreetingServiceBlockingStub stub) {
+    public GrpcClientService(GreetingServiceGrpc.GreetingServiceBlockingStub stub) {
         this.stub = stub;
     }
 

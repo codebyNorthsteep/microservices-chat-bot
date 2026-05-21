@@ -6,7 +6,6 @@ import org.example.userservice.dto.CreateUserRequest;
 import org.example.userservice.dto.UpdateUserRequest;
 import org.example.userservice.dto.UserResponse;
 import org.example.userservice.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,8 +17,12 @@ import java.net.URI;
 @RequestMapping("/api")
 
 public class UserController {
-    @Autowired
-    private UserService userService;
+
+    private final UserService userService;
+
+    public UserController(UserService userService){
+        this.userService = userService;
+    }
 
     @PostMapping("/users")
     ResponseEntity<UserResponse> createUser(@Valid @RequestBody CreateUserRequest user) {
@@ -44,7 +47,7 @@ public class UserController {
     //todo: skapa en PATCH endpoint för att uppdatera lösenord vid tillfälle
 
     @DeleteMapping("/users/{id}")
-    ResponseEntity<Void> deleteUser(@PathVariable Long id){
+    ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         log.info("Deleting user with id: {}", id);
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();

@@ -22,7 +22,7 @@ private final MessageMapper messageMapper;
         this.messageMapper = messageMapper;
     }
 
-    public ReceiveMessage createMessage(CreateMessage messageRequest) {
+    public ReceiveMessage saveMessage(CreateMessage messageRequest) {
         if (messageRequest == null) {
             throw new IllegalArgumentException("Message request cannot be null");
         }
@@ -30,13 +30,6 @@ private final MessageMapper messageMapper;
         Message savedMessage = messageRepository.save(message);
         log.info("Message created with id: {}", savedMessage.getId());
         return messageMapper.toReceiveMessage(savedMessage);
-    }
-
-    public ReceiveMessage getMessageById(Long id) {
-        Message message = messageRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Message not found with id: " + id));
-        log.info("Message retrieved with id: {}", id);
-        return messageMapper.toReceiveMessage(message);
     }
 
     public List<ReceiveMessage> getAllMessages(String username){
