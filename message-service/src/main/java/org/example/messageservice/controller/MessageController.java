@@ -18,20 +18,23 @@ public class MessageController {
 
     private final MessageService messageService;
 
-    public MessageController(MessageService messageService){
+    public MessageController(MessageService messageService) {
         this.messageService = messageService;
     }
 
     @PostMapping("/messages")
-    public ResponseEntity<ReceiveMessage> createMessage(@Valid @RequestBody CreateMessage messageRequest) {
-        ReceiveMessage receiveMessage = messageService.saveMessage(messageRequest);
+    public ResponseEntity<ReceiveMessage> createMessage(
+            @RequestHeader("X-User-Name") String authenticatedUser,
+            @Valid @RequestBody CreateMessage messageRequest) {
+        //Skicka med verifierat namn till service
+        ReceiveMessage receiveMessage = messageService.saveMessage(authenticatedUser, messageRequest);
         log.info("Message created with id: {}", receiveMessage.id());
-        return ResponseEntity.created(URI.create("/api/messages/" + receiveMessage.username())).body(receiveMessage);
+        return ResponseEntity.created(URI.create("/api/messages/me")).body(receiveMessage);
     }
 
-    @GetMapping("/messages/{username}")
-    public ResponseEntity<List<ReceiveMessage>> getMessagesByUsername(@PathVariable String username) {
-        List<ReceiveMessage> messages = messageService.getAllMessages(username);
+    @GetMapping("/messages/me")
+    public ResponseEntity<List<ReceiveMessage>> getMessagesByUsername(@RequestHeader("X-User-Name") String authenticatedUser) {
+        List<ReceiveMessage> messages = messageService.getAllMessages(authenticatedUser);
         log.info("Messages retrieved a user");
         return ResponseEntity.ok(messages);
     }

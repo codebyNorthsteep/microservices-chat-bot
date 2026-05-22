@@ -1,5 +1,6 @@
 package org.example.userservice.service;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import jakarta.persistence.EntityNotFoundException;
 import org.example.userservice.dto.CreateUserRequest;
@@ -10,6 +11,7 @@ import org.example.userservice.model.User;
 import org.example.userservice.repository.UserRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class UserService {
@@ -51,8 +53,11 @@ public class UserService {
         return userMapper.toUserResponse(user);
     }
 
-    public UserDto updateUser(Long id, UpdateUserRequest updatedUser) {
+    public UserDto updateUser(Long id, UpdateUserRequest updatedUser, String authenticatedUser) {
         User existingUser = findUserById(id);
+        if (authenticatedUser != null && !updatedUser.username().equals(authenticatedUser)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only update your own profile!");
+        }
         userMapper.updateEntity(updatedUser, existingUser);
         try {
             User saved = userRepository.save(existingUser);
@@ -73,9 +78,10 @@ public class UserService {
         return userRepository.save(existingUser);
     }
 
-    public void deleteUser(Long id) {
-        if (!userRepository.existsById(id)) {
-            throw new EntityNotFoundException("User not found");
+    public void deleteUser(Long id, String authenticatedUser) {
+        User existingUser = findUserById(id);
+        if (authenticatedUser != null && !existingUser.getUsername().equals(authenticatedUser)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only delete your own profile!");
         }
         userRepository.deleteById(id);
     }

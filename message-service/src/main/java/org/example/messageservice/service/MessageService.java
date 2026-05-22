@@ -14,9 +14,9 @@ import java.util.List;
 @Slf4j
 public class MessageService {
 
-private final MessageRepository messageRepository;
-private final MessageMapper messageMapper;
-private final GrpcClientService grpcClientService;
+    private final MessageRepository messageRepository;
+    private final MessageMapper messageMapper;
+    private final GrpcClientService grpcClientService;
 
     public MessageService(MessageRepository messageRepository, MessageMapper messageMapper, GrpcClientService grpcClientService) {
         this.messageRepository = messageRepository;
@@ -24,20 +24,25 @@ private final GrpcClientService grpcClientService;
         this.grpcClientService = grpcClientService;
     }
 
-    public ReceiveMessage saveMessage(CreateMessage messageRequest) {
+    public ReceiveMessage saveMessage(String authenticatedUser, CreateMessage messageRequest) {
         if (messageRequest == null) {
             throw new IllegalArgumentException("Message request cannot be null");
         }
+        if (authenticatedUser == null || authenticatedUser.isBlank()) {
+            throw new IllegalArgumentException("Username cannot be null or blank");
+        }
         //Get username from UserService via gRPC to ensure the user exists before saving the message
-        grpcClientService.getUser(messageRequest.username());
+        grpcClientService.getUser(authenticatedUser);
         Message message = messageMapper.toEntity(messageRequest);
+        message.setUsername(authenticatedUser);
+
         Message savedMessage = messageRepository.save(message);
 
         log.info("Message created with id: {}", savedMessage.getId());
         return messageMapper.toReceiveMessage(savedMessage);
     }
 
-    public List<ReceiveMessage> getAllMessages(String username){
+    public List<ReceiveMessage> getAllMessages(String username) {
         if (username == null || username.isBlank()) {
             throw new IllegalArgumentException("Username cannot be null or blank");
         }

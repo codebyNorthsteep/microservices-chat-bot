@@ -1,18 +1,14 @@
 package org.example.bff;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.servlet.function.RouterFunction;
-import org.springframework.web.servlet.function.ServerRequest;
 import org.springframework.web.servlet.function.ServerResponse;
 
-import static org.springframework.cloud.gateway.server.mvc.filter.BeforeFilterFunctions.setPath;
 import static org.springframework.cloud.gateway.server.mvc.filter.BeforeFilterFunctions.uri;
-import static org.springframework.cloud.gateway.server.mvc.filter.TokenRelayFilterFunctions.tokenRelay;
 import static org.springframework.cloud.gateway.server.mvc.handler.GatewayRouterFunctions.route;
 import static org.springframework.cloud.gateway.server.mvc.handler.HandlerFunctions.http;
 
@@ -45,11 +41,11 @@ public class BffConfig {
  är att istället för att använda tokenRelay(), som skickar vidare hela Authorization-headern, kan man använda
  en kombination av Springs säkerhetskontext och filtret addRequestHeader.
  */
+    //IDOR-säkerhetsrisk: eftersom username skickades med i URL:en så kan en användare potentiellt ändra den och få tillgång till någon annans meddelanden. Ändra till /me och hantera i MessageController
     @Bean
     public RouterFunction<ServerResponse> routeWithUsername() {
-        // /api/test -> http://localhost:8083/api/test
         return route()
-                .GET("/api/messages/{username}", http())
+                .GET("/api/messages/me", http())
                 .before(uri("http://localhost:8081/"))
 //                .before(setPath("/api/test"))
                 .filter(userFilter) // Använd det anpassade filtret för att lägga till användarnamnet i headern

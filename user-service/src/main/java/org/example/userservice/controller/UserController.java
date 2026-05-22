@@ -38,8 +38,12 @@ public class UserController {
     }
 
     @PutMapping("/users/{id}")
-    ResponseEntity<UserDto> updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest user) {
-        UserDto updated = userService.updateUser(id, user);
+    ResponseEntity<UserDto> updateUser(
+            @PathVariable Long id,
+            @RequestHeader(value = "X-User-Name", required = false) String authenticatedUser, // <-- Fånga headern från BFF
+            @Valid @RequestBody UpdateUserRequest user) {
+
+        UserDto updated = userService.updateUser(id, user, authenticatedUser);
         log.info("Updating user with id: {}", id);
         return ResponseEntity.ok(updated);
     }
@@ -47,9 +51,13 @@ public class UserController {
     //todo: skapa en PATCH endpoint för att uppdatera lösenord vid tillfälle
 
     @DeleteMapping("/users/{id}")
-    ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+    ResponseEntity<Void> deleteUser(
+            @PathVariable Long id,
+            @RequestHeader(value = "X-User-Name", required = false) String authenticatedUser) { // <-- Fånga headern från BFF
+
         log.info("Deleting user with id: {}", id);
-        userService.deleteUser(id);
+        // Säkerhetscheck: Skicka med det verifierade namnet in i servicen
+        userService.deleteUser(id, authenticatedUser);
         return ResponseEntity.noContent().build();
     }
 
