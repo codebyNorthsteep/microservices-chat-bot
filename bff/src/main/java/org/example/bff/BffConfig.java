@@ -6,17 +6,20 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.servlet.function.RouterFunction;
-import org.springframework.web.servlet.function.ServerRequest;
 import org.springframework.web.servlet.function.ServerResponse;
 
-import static org.springframework.cloud.gateway.server.mvc.filter.BeforeFilterFunctions.setPath;
 import static org.springframework.cloud.gateway.server.mvc.filter.BeforeFilterFunctions.uri;
-import static org.springframework.cloud.gateway.server.mvc.filter.TokenRelayFilterFunctions.tokenRelay;
 import static org.springframework.cloud.gateway.server.mvc.handler.GatewayRouterFunctions.route;
 import static org.springframework.cloud.gateway.server.mvc.handler.HandlerFunctions.http;
 
 @Configuration
 public class BffConfig {
+
+    private final UserFilter userFilter;
+
+    public BffConfig(UserFilter userFilter) {
+        this.userFilter = userFilter;
+    }
 
     @Bean
     SecurityFilterChain security(HttpSecurity http) {
@@ -33,67 +36,45 @@ public class BffConfig {
 
     }
 
-    @Bean
-    RouterFunction<ServerResponse> route1() {
-        // api/test -> http://localhost:8081
-        //Då vi routear så blir URL:n http://localhost:8080/api/test då vi går tillbaka via gateway(bff) som körs på 8080
-
-        return route()
-                .GET("/api/test", http())
-                .before(uri("http://localhost:8081/")) // Manipulerar vilken host vi ska skicka till
-                .filter(tokenRelay())
-                .build();
-
-    }
-
-    @Bean
-    public RouterFunction<ServerResponse> route2() {
-        // /api/test2 -> http://localhost:8082/api/test
-        return route()
-                .GET("/api/test2", http())
-                .before(uri("http://localhost:8082/"))
-                .before(setPath("/api/test"))
-                .filter(tokenRelay())
-                .build();
-    }
-
     /*
  Ett vanligt scenario när man vill förenkla för sina microservices så att de slipper packa upp JWT-tokenet själva
  är att istället för att använda tokenRelay(), som skickar vidare hela Authorization-headern, kan man använda
  en kombination av Springs säkerhetskontext och filtret addRequestHeader.
  */
+    //IDOR-säkerhetsrisk: eftersom username skickades med i URL:en så kan en användare potentiellt ändra den och få tillgång till någon annans meddelanden. Ändra till /me och hantera i MessageController
     @Bean
     public RouterFunction<ServerResponse> routeWithUsername() {
-        // /api/test -> http://localhost:8083/api/test
         return route()
-                .GET("/api/test3", http())
-                .before(uri("http://localhost:8083/"))
-                .before(setPath("/api/test"))
-                .filter((request, next) -> {
-                    // Hämta användarnamnet från Principal (Spring Security)
-                    String username = request.servletRequest().getUserPrincipal() != null
-                            ? request.servletRequest().getUserPrincipal().getName()
-                            : "anonymous";
-                    ServerRequest modifiedRequest = ServerRequest.from(request)
-                            .headers(httpHeaders -> {
-                                // .set ser till att eventuella headers från klienten raderas
-                                // och ersätts helt av gatewayens verifierade användarnamn.
-                                httpHeaders.set("X-User-Name", username);
-                            })
-                            .build();
-                    return next.handle(modifiedRequest);
-                })
+                .GET("/api/messages/me", http())
+                .before(uri("http://localhost:8081/"))
+//                .before(setPath("/api/test"))
+                .filter(userFilter) // Använd det anpassade filtret för att lägga till användarnamnet i headern
                 .build();
     }
 
-//    @Bean
-//    public RouterFunction<ServerResponse> route1WithSetPathAndSegment() {
-//        // /test -> http://localhost:8081/api/test
-//        return route()
-//                .GET("/{segment}", http())
-//                .before(uri("http://localhost:8081/"))
-//                .before(setPath("/api/{segment}"))
-//                .filter(tokenRelay())
-//                .build();
-//    }
+
+    @Bean
+    public RouterFunction<ServerResponse> routeToPostMessage() {
+        return route()
+                .POST("/api/messages", http())
+                .before(uri("http://localhost:8081/"))
+                .filter(userFilter)
+                .build();
+    }
+
+    //Wildcard-routes: för att fånga alla requests till /api/users/** och skicka vidare till http://localhost:8083/ (user-service)
+    //todo: lägg till patch om jag fortsätter med att man ska kunna uppdatera sitt lösenord
+    @Bean
+    public RouterFunction<ServerResponse> userRoutes() {
+        return route()
+                .path("/api/users/**", () -> route()
+                        .GET("/**", http())
+                        .POST("/**", http())
+                        .PUT("/**", http())
+                        .DELETE("/**", http())
+                        .build())
+                .before(uri("http://localhost:8083/"))
+                .filter(userFilter)
+                .build();
+    }
 }

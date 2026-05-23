@@ -2,7 +2,7 @@ package org.example.userservice.mapper;
 
 import org.example.userservice.dto.CreateUserRequest;
 import org.example.userservice.dto.UpdateUserRequest;
-import org.example.userservice.dto.UserResponse;
+import org.example.userservice.dto.UserDto;
 import org.example.userservice.model.User;
 import org.springframework.stereotype.Component;
 
@@ -29,8 +29,8 @@ public class UserMapper {
         entity.setEmail(request.email());
     }
 
-    public UserResponse toUserResponse(User entity){
-        return new UserResponse(
+    public UserDto toUserResponse(User entity){
+        return new UserDto(
                 entity.getId(),
                 entity.getUsername(),
                 entity.getFirstName(),

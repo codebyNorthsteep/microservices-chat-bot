@@ -1,15 +1,17 @@
 package org.example.userservice.service;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import jakarta.persistence.EntityNotFoundException;
 import org.example.userservice.dto.CreateUserRequest;
 import org.example.userservice.dto.UpdateUserRequest;
-import org.example.userservice.dto.UserResponse;
+import org.example.userservice.dto.UserDto;
 import org.example.userservice.mapper.UserMapper;
 import org.example.userservice.model.User;
 import org.example.userservice.repository.UserRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class UserService {
@@ -26,7 +28,7 @@ public class UserService {
         this.userMapper = userMapper;
     }
 
-    public UserResponse createUser(CreateUserRequest request) {
+    public UserDto createUser(CreateUserRequest request) {
         // Hash the password before saving
         User user = userMapper.toEntity(request);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -39,14 +41,23 @@ public class UserService {
         }
     }
 
-    public UserResponse getUser(Long id) {
+    public UserDto getUser(Long id) {
         User user = findUserById(id);
 
         return userMapper.toUserResponse(user);
     }
 
-    public UserResponse updateUser(Long id, UpdateUserRequest updatedUser) {
+    public UserDto getUserByUsername(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        return userMapper.toUserResponse(user);
+    }
+
+    public UserDto updateUser(Long id, UpdateUserRequest updatedUser, String authenticatedUser) {
         User existingUser = findUserById(id);
+        if (authenticatedUser != null && !existingUser.getUsername().equals(authenticatedUser)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only update your own profile!");
+        }
         userMapper.updateEntity(updatedUser, existingUser);
         try {
             User saved = userRepository.save(existingUser);
@@ -67,9 +78,10 @@ public class UserService {
         return userRepository.save(existingUser);
     }
 
-    public void deleteUser(Long id) {
-        if (!userRepository.existsById(id)) {
-            throw new EntityNotFoundException("User not found");
+    public void deleteUser(Long id, String authenticatedUser) {
+        User existingUser = findUserById(id);
+        if (authenticatedUser != null && !existingUser.getUsername().equals(authenticatedUser)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only delete your own profile!");
         }
         userRepository.deleteById(id);
     }

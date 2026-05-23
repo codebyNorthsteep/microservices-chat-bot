@@ -18,7 +18,6 @@ public class Message {
     private Long id;
 
     @Column(nullable = false)
-    @NotBlank(message = "Username cannot be blank")
     private String username;
 
     @Column(columnDefinition = "TEXT", nullable = false)
