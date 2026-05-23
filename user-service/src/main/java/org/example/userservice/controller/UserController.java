@@ -40,7 +40,7 @@ public class UserController {
     @PutMapping("/users/{id}")
     ResponseEntity<UserDto> updateUser(
             @PathVariable Long id,
-            @RequestHeader(value = "X-User-Name", required = false) String authenticatedUser, // <-- Fånga headern från BFF
+            @RequestHeader(value = "X-User-Name") String authenticatedUser, // <-- Fånga headern från BFF
             @Valid @RequestBody UpdateUserRequest user) {
 
         UserDto updated = userService.updateUser(id, user, authenticatedUser);
@@ -53,7 +53,7 @@ public class UserController {
     @DeleteMapping("/users/{id}")
     ResponseEntity<Void> deleteUser(
             @PathVariable Long id,
-            @RequestHeader(value = "X-User-Name", required = false) String authenticatedUser) { // <-- Fånga headern från BFF
+            @RequestHeader(value = "X-User-Name") String authenticatedUser) { // <-- Fånga headern från BFF
 
         log.info("Deleting user with id: {}", id);
         // Säkerhetscheck: Skicka med det verifierade namnet in i servicen

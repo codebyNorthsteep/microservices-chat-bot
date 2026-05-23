@@ -55,7 +55,7 @@ public class UserService {
 
     public UserDto updateUser(Long id, UpdateUserRequest updatedUser, String authenticatedUser) {
         User existingUser = findUserById(id);
-        if (authenticatedUser != null && !updatedUser.username().equals(authenticatedUser)) {
+        if (authenticatedUser != null && !existingUser.getUsername().equals(authenticatedUser)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only update your own profile!");
         }
         userMapper.updateEntity(updatedUser, existingUser);

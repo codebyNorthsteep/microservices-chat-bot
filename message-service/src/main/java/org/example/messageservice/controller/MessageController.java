@@ -29,7 +29,7 @@ public class MessageController {
         //Skicka med verifierat namn till service
         ReceiveMessage receiveMessage = messageService.saveMessage(authenticatedUser, messageRequest);
         log.info("Message created with id: {}", receiveMessage.id());
-        return ResponseEntity.created(URI.create("/api/messages/me")).body(receiveMessage);
+        return ResponseEntity.created(URI.create("/api/messages/" + receiveMessage.id())).body(receiveMessage);
     }
 
     @GetMapping("/messages/me")
