@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -16,6 +17,9 @@ public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "event_id", unique = true)
+    private UUID eventId;
 
     @Column(nullable = false)
     private String username;
@@ -30,6 +34,7 @@ public class Message {
 
     @PrePersist
     protected void onCreate() {
+        this.eventId = UUID.randomUUID();
         this.createdAt = LocalDateTime.now();
     }
 }

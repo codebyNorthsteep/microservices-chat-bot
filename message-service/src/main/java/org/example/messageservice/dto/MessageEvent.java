@@ -1,5 +1,10 @@
 package org.example.messageservice.dto;
 
-public record MessageEvent(String username,
-                           String content) {
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+public record MessageEvent(UUID eventId,
+                           String username,
+                           String content,
+                           LocalDateTime sentAt) {
 }
