@@ -18,7 +18,7 @@ public class Message {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "event_id", unique = true)
+    @Column(name = "event_id", unique = true, nullable = false, updatable = false)
     private UUID eventId;
 
     @Column(nullable = false)
