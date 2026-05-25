@@ -1,12 +1,16 @@
 package org.example.messageservice.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.example.messageservice.config.RabbitMQConfig;
 import org.example.messageservice.dto.CreateMessage;
+import org.example.messageservice.dto.MessageEvent;
 import org.example.messageservice.dto.ReceiveMessage;
 import org.example.messageservice.mapper.MessageMapper;
 import org.example.messageservice.model.Message;
 import org.example.messageservice.repository.MessageRepository;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -17,13 +21,16 @@ public class MessageService {
     private final MessageRepository messageRepository;
     private final MessageMapper messageMapper;
     private final GrpcClientService grpcClientService;
+    private final RabbitTemplate rabbitTemplate;
 
-    public MessageService(MessageRepository messageRepository, MessageMapper messageMapper, GrpcClientService grpcClientService) {
+    public MessageService(MessageRepository messageRepository, MessageMapper messageMapper, GrpcClientService grpcClientService, RabbitTemplate rabbitTemplate) {
         this.messageRepository = messageRepository;
         this.messageMapper = messageMapper;
         this.grpcClientService = grpcClientService;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
+    @Transactional
     public ReceiveMessage saveMessage(String authenticatedUser, CreateMessage messageRequest) {
         if (messageRequest == null) {
             throw new IllegalArgumentException("Message request cannot be null");
@@ -32,13 +39,25 @@ public class MessageService {
             throw new IllegalArgumentException("Username cannot be null or blank");
         }
         //Get username from UserService via gRPC to ensure the user exists before saving the message
+        log.info("Verifying user: {}", authenticatedUser);
         grpcClientService.getUser(authenticatedUser);
+        log.info("User verified: {}", authenticatedUser);
+
         Message message = messageMapper.toEntity(messageRequest);
         message.setUsername(authenticatedUser);
-
         Message savedMessage = messageRepository.save(message);
+        log.info("Message saved with id: {} and eventId: {}", savedMessage.getId(), savedMessage.getEventId());
 
-        log.info("Message created with id: {}", savedMessage.getId());
+        //Publicera MessageEvent till RabbitMQ
+        MessageEvent event = new MessageEvent(
+                savedMessage.getEventId(),
+                savedMessage.getUsername(),
+                savedMessage.getContent(),
+                savedMessage.getCreatedAt()
+        );
+        rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE, RabbitMQConfig.ROUTING_KEY, event);
+        log.info("Event published to exchange: {} with routing key: {}", RabbitMQConfig.EXCHANGE, RabbitMQConfig.ROUTING_KEY);
+
         return messageMapper.toReceiveMessage(savedMessage);
     }
 
