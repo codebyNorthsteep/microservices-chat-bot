@@ -31,7 +31,6 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="bot-service" target="25" />
       <module name="demo" target="25" />
       <module name="ProjectBifrost" target="25" />
     </bytecodeTargetLevel>
