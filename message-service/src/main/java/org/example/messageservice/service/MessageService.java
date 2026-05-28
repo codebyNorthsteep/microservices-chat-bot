@@ -38,10 +38,12 @@ public class MessageService {
         if (authenticatedUser == null || authenticatedUser.isBlank()) {
             throw new IllegalArgumentException("Username cannot be null or blank");
         }
-        //Get username from UserService via gRPC to ensure the user exists before saving the message
-        log.info("Verifying user: {}", authenticatedUser);
-        grpcClientService.getUser(authenticatedUser);
-        log.info("User verified: {}", authenticatedUser);
+        //Get username from UserService via gRPC to ensure the user exists before saving the message, exclude bot
+        if (!authenticatedUser.equals("Bot")) {
+            log.info("Verifying user: {}", authenticatedUser);
+            grpcClientService.getUser(authenticatedUser);
+            log.info("User verified: {}", authenticatedUser);
+        }
 
         Message message = messageMapper.toEntity(messageRequest);
         message.setUsername(authenticatedUser);
